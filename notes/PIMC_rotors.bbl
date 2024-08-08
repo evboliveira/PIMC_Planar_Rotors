@@ -1,0 +1,16 @@
+\begin{thebibliography}{1}
+
+\bibitem{lemos2018analytical}
+N.~Lemos, {\em Analytical Mechanics}.
+\newblock Cambridge University Press, 2018.
+
+\bibitem{eh_ek_2008}
+J.~{\v{R}}eh{\'{a}}{\v{c}}ek, Z.~Bouchal, R.~{\v{C}}elechovsk{\'{y}}, Z.~Hradil, and L.~L. S{\'{a}}nchez-Soto, ``Experimental test of uncertainty relations for quantum mechanics on a circle,'' {\em Physical Review A}, vol.~77, mar 2008.
+
+\bibitem{Lopez_Vazquez_2016}
+P.~C.~L. V{\'{a}}zquez and A.~Garc{\'{\i}}a, ``Approximation to the quantum planar rotor coupled to a finite temperature bath,'' {\em Physica Scripta}, vol.~91, p.~055101, apr 2016.
+
+\bibitem{Yan_2017}
+Y.~Yan and D.~Blume, ``Path integral monte carlo ground state approach: formalism, implementation, and applications,'' {\em Journal of Physics B: Atomic, Molecular and Optical Physics}, vol.~50, p.~223001, oct 2017.
+
+\end{thebibliography}

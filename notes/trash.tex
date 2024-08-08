@@ -1,0 +1,395 @@
+\newpage
+\subsection{Trotter Expansion $\H = \H_{odd} + \H_{even}$}
+
+The hamiltonian can be represented as
+\begin{align}
+	\H 
+	=& \sum_i \K{i} + \sum_{i} \V{i,i+1} \nn
+	=& \frac{\K{1}}{2} + \sum_{i=1}^N \frac{\K{i}+\K{i+1}}{2} + \frac{\K{N}}{2} + \sum_{i=1}^N \V{i,i+1} \nn
+	=& \frac{\K{1}}{2} + \sum_{i=1}^{N-1} \frac{\K{i}+\K{i+1}}{2}+ \V{i,i+1} + \frac{\K{N}}{2} \nn
+	=& \frac{\K{1}}{2} + \frac{\K{N}}{2} + \sum_{i=1}^{N-1} \H_{i,i+1} \nn
+\end{align}
+
+Here, it is convenient to split the sum into only two terms as
+\begin{equation}
+	\H = \frac{\K{1}}{2} + \frac{\K{N}}{2} + \H_{odd} + \H_{even} 
+	\text{ , for }
+	\left\{
+	\begin{aligned}
+		&\H_{odd} \equiv \H_{12} + \H_{34} + \dots =  \sum_{n \text{ odd}}^{N-1} \H_{n,n+1} \, ,\\
+		&\H_{even} \equiv \H_{23} + \H_{45} + \dots =\sum_{n \text{ even}}^{N-1} \H_{n,n+1}  \, .
+	\end{aligned}
+	\right.
+\end{equation}
+It is important to notice that $\comm{\H_{odd}}{\H_{even}} \neq 0$. After applying the \textbf{Trotter expansion}, Eq. \eqref{eq:partition_function_PIMC} becomes
+\begin{align}
+	\label{eq:partition_function_PIMC_trotter_Heven_Hodd}
+	\Z(\beta) 
+	\approx& \sum_{\{\m{}{l}\}_{L}} \prod_{l=1}^{L} \mel**{\m{}{l}}{e^{-\tau \frac{\K{1}+K{N}}{2}}e^{-\tau \H_{odd}}e^{-\tau \H_{even}}}{\m{}{l+1}} \nn
+	=& \sum_{\{\m{}{l}\}_{L}} \prod_{l=1}^{L} e^{ \frac{-\tau}{2}(\m{1}{l}+\m{N}{l})} \mel{\m{}{l}}{ e^{ -\tau \H_{odd}} {\color{red} \sum_{\m{}{\alpha}} \ketbra{\m{}{\alpha}}} e^{ -\tau \H_{even}}}{\m{}{l+1}}\nn
+	=& \sum_{\{\m{}{l}\}_{L}} \prod_{l=1}^{L} \rho_{K_{1N}}^l \sum_{\m{}{\alpha}} \mel**{\m{}{l}}{ e^{ -\tau \H_{odd}}}{\m{}{\alpha}} \mel**{\m{}{\alpha}}{e^{ -\tau \H_{even}}}{\m{}{l+1}}
+	\nn
+	=& \sum_{\{\m{}{l}\}_{L}}
+	\rho_{K_{1N}}^1 \left(\sum_{\m{}{\alpha\sub{1}}}   \mel{\m{}{1}}{ e^{ -\tau \H_{odd}}}{\m{}{\alpha\sub{1}}} \mel{\m{}{\alpha\sub{1}}}{e^{ -\tau \H_{even}}}{\m{}{2}}\right) \times \nn
+	& \hspace{0.55cm} \times
+	\rho_{K_{1N}}^2 \left(\sum_{\m{}{\alpha\sub{2}}}  \mel{\m{}{2}}{ e^{ -\tau \H_{odd}}}{\m{}{\alpha\sub{2}}} \mel{\m{}{\alpha\sub{2}}}{e^{ -\tau \H_{even}}}{\m{}{3}}\right) \times \dots \nn		
+	& \hspace{0.08cm} \dots \times
+	\rho_{K_{1N}}^L \left(\sum_{\m{}{\alpha\sub{L}}} \mel{\m{}{L}}{ e^{ -\tau \H_{odd}}}{\m{}{\alpha\sub{L}}} \mel{\m{}{\alpha\sub{L}}}{e^{ -\tau \H_{even}}}{\m{}{L+1}}\right)
+	\nn
+	%
+	=& \sum_{\m{}{1}} \sum_{\m{}{2}} \sum_{\m{}{3}}\dots  \sum_{\m{}{L}} ~~
+	\sum_{\m{}{\alpha\sub{1}}} \sum_{\m{}{\alpha\sub{2}}} \sum_{\m{}{\alpha\sub{3}}} \dots \sum_{\m{}{\alpha\sub{L}}} 
+	\prod_{l=1}^{L} \rho_{K_{1N}}^l \mel**{\m{}{l}}{e^{ -\tau \H_{odd}}}{\m{}{\alpha\sub{l}}}
+	\mel**{\m{}{\alpha\sub{l}}}{e^{ -\tau \H_{even}}}{\m{}{l+1}}
+	\, ,
+\end{align} 
+Then, reorganizing the sums and relabelling the terms as $l \rightarrow 2p-1$, $\alpha\sub{l} \rightarrow 2p$, and $l+1 \rightarrow 2p+1$ we have
+\begin{align}
+	\Z(\beta)
+	=& \sum_{\{\m{}{p}\}_{2L}}
+	\prod_{p=1}^{L} \rho_{K_{1N}}^l\mel**{\m{}{2p-1}}{e^{ -\tau \H_{odd}}}{\m{}{2p}}
+	\mel**{\m{}{2p}}{e^{ -\tau \H_{even}}}{\m{}{2p+1}} \nn
+	\Z(\beta)=& \sum_{\{\m{}{p}\}_{2L}}
+	\prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	\, ,
+\end{align}
+where
+\begin{equation}
+	\label{eq:def_rho_tau_op}
+	\oper{\rho}(p) =
+	\left\{
+	\begin{aligned}
+		&\rho_{K_{1N}}^p e^{ -\tau \H_{odd}} & \text{, for $p$ odd,} \\
+		&e^{ -\tau \H_{even}} & \text{, for $p$ even.} 			
+	\end{aligned}
+	\right.
+\end{equation}
+Calculating each term of the matrix elements we have,
+\begin{align}
+	\mel**{\m{}{p}}{e^{ -\tau \H_{odd}}}{\m{}{p+1}}
+	=& \mel**{\m{}{p}}{e^{ -\tau \sum_{n \text{ odd}}^{N-1} \H_{n,n+1}}}{\m{}{p+1}} \nn
+	=& \mel{\m{}{p}}{\prod_{n \text{ odd}}^{N-1} e^{ -\tau \H_{n,n+1}} }{\m{}{p+1}}\nn
+	=& \prod_{n \text{ odd}}^{N-1} \mel**{\m{n}{p},\m{n+1}{p}}{e^{ -\tau \H_{n,n+1}}}{\m{n}{p+1},\m{n+1}{p+1}} \, ,
+\end{align}
+where we have omitted all the delta functions regarding the other states to keep the notation simplified. Also, analogously
+\begin{align}
+	\mel**{\m{}{p}}{e^{ -\tau \H_{even}}}{\m{}{p+1}}
+	=& \prod_{n \text{ even}}^{N-1}\mel{\m{n}{p},\m{n+1}{p}}{e^{ -\tau \H_{n,n+1}}}{\m{n}{p+1},\m{n+1}{p+1}}  \, .
+\end{align}
+Then, the partition function becomes
+\begin{align}
+	\label{eq:part_function_expanded}
+	\boxed{
+		\mathcolorbox{highlight}{
+			\Z(\beta)
+			= \sum_{\{\m{}{p}\}_{2L}}
+			\prod_{p=1}^{2L} \prod_{n \in \mathcal{A}_p} \mel{\m{n}{p},\m{n+1}{p}}{}{\m{n}{p+1},\m{n+1}{p+1}}
+			\, ,
+	}}
+\end{align}
+for set $\mathcal{A}_p$ off all odd (even) numbers in the interval $\{1,N-1\}$ if $p$ is an odd (even) number, and where, now, the double bar notation $||$ makes implicit the matrix element being taken with respect to the $\oper{\rho}(p)$ as defined on eq. \eqref{eq:def_rho_tau_op}.
+
+
+
+
+%	\subsection{Gibbs Sampling}
+%		\begin{align}
+	%		\vec{M}(t) 
+	%		&= \left[\m{}{1},\m{}{2}, \dots \m{}{P}\right] \nonumber \\
+	%		&= \left[\m{1}{1},\m{2}{1}, \dots \m{N}{1},\dots ,\m{n}{p}, \dots, \m{1}{P}, \m{2}{P}, \dots \m{N}{P}\right]\nonumber
+	%	\end{align}
+%	$$$$
+%	
+%	$$\text{Pr}\left({\color{ForestGreen}\m{n}{p}} | {\color{RoyalPurple}\m{1}{1}},\dots,{\color{RoyalPurple}\m{1}{1}},\dots ,{\color{RoyalPurple}\m{n-1}{p}},{\color{ForestGreen}\square}, \m{n+1}{p} , \dots, \m{1}{P}, \dots \m{N}{P}\right) \hspace{1cm}
+%	$$
+%	$$\hspace{1cm}=\dfrac{
+	%		\text{Pr}\left({\color{RoyalPurple}\m{1}{1}},\dots,{\color{RoyalPurple}\m{1}{1}},\dots ,{\color{RoyalPurple}\m{n-1}{p}},{\color{ForestGreen}\m{n}{p}}, \m{n+1}{p} , \dots, \m{1}{P}, \dots \m{N}{P}\right)
+	%	}{
+	%		\sum_{{\color{ForestGreen}\m{n}{p}}} \text{Pr}\left({\color{RoyalPurple}\m{1}{1}},\dots,{\color{RoyalPurple}\m{1}{1}},\dots ,{\color{RoyalPurple}\m{n-1}{p}},{\color{ForestGreen}\m{n}{p}}, \m{n+1}{p} , \dots, \m{1}{P}, \dots \m{N}{P}\right)}
+%	$$
+%	
+%	$$\text{Pr}\left({\color{ForestGreen} m_{t}} | m_1,m_2,\dots,m_6 \right)
+%	=
+%	\frac{
+	%		\mel**{m_1,m_2}{e^{-\tau \V{}}}{m_3,{\color{ForestGreen} m_{t}}}
+	%		\mel**{{\color{ForestGreen} m_t},m_4}{e^{-\tau \V{}}}{m_5,m_6}
+	%	}{
+	%		\sum_{{\color{ForestGreen} m_t}} \mel**{m_1,m_2}{e^{-\tau \V{}}}{m_3,{\color{ForestGreen} m_{t}}}
+	%		\mel**{{\color{ForestGreen} m_t},m_4}{e^{-\tau \V{}}}{m_5,m_6}}
+%	$$
+
+\subsubsection{Energy Estimator for PIGS}
+\begin{align}
+	\label{eq:expectation_energy_test3}
+	\expval{\oper{E}}
+	=& \frac{ \mel**{\Psi_T}{e^{-\frac{\beta}{2} \H} \H e^{- \frac{\beta}{2} \H }}{\Psi_T}}{\mel**{\Psi_T}{e^{-\beta \H}}{\Psi_T}} \nn 
+	=& \frac{1}{\Z} \mel**{\Psi_T}{e^{-\beta \H} \H }{\Psi_T} \nn 
+	=&\frac{1}{\Z}
+	\sum_{\{\m{}{l}\}_{L+1}} \delta_{\Psi_T,\m{}{1}} \prod_{l=1}^{L}  \mel**{\m{}{l}}{ e^{ -\tau \H}}{\m{}{l+1}}  \mel{\m{}{L+1}}{\H}{\Psi_T}  \nn
+	\approx& \frac{1}{\Z}
+	\sum_{\{\m{}{l}\}_{L+1}} \delta_{\Psi_T,\m{}{1}} \prod_{l=1}^{L}  \mel**{\m{}{l}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}}{\m{}{l+1}}  \mel{\m{}{L+1}}{\H}{\Psi_T}
+	\nn
+	\approx& \frac{1}{\Z}
+	\sum_{\{\m{}{l}\}_{2L+1}} \delta_{\Psi_T,\m{}{1}} \prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}  \mel{\m{}{2L+1}}{\H}{\Psi_T}
+	\nn 
+	%		=& \frac{1}{\Z} 
+	%		\sum_{\{\m{}{p}\}_{2L-1}} \delta_{\Psi_T,\m{}{1}}
+	%		\prod_{p=1}^{L-1} \mel**{\m{}{2p-1}}{e^{ -\tau \H_{odd}}}{\m{}{2p}}
+	%		\mel**{\m{}{2p}}{e^{ -\tau \H_{even}}}{\m{}{2p+1}}
+	%		\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}\H}{\Psi_T}
+	%		\nn 
+	%		=& \frac{1}{\Z} 
+	%		\sum_{\{\m{}{p}\}_{2L-1}}
+	%		\delta_{\Psi_T,\m{}{1}}
+	%		\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	%		\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}\H}{\Psi_T}
+	%		\nn
+	%		=& \frac{1}{\Z} 
+	%		\sum_{\{\m{}{p}\}_{2L-1}}
+	%		\delta_{\Psi_T,\m{}{1}}
+	%		\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	%		\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} 
+		%			{\color{red} \sum_{\m{}{2L}}\ketbra{\m{}{2L}}}	
+		%			e^{ -\tau \H_{even}}\H}{\Psi_T}
+	%		\nn
+	%		=& \frac{1}{\Z} 
+	%		\sum_{\{\m{}{p}\}_{2L}}
+	%		\delta_{\Psi_T,\m{}{1}}
+	%		\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	%		\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}}}{\m{}{2L}}
+	%		\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}
+	%		{\color{red}
+		%			\frac{\mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}{ \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+		%		}
+	%		\nn
+	%		=& \frac{1}{\Z} 
+	%		\sum_{\{\m{}{p}\}_{2L}}
+	%		\delta_{\Psi_T,\m{}{1}}
+	%		\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	%		\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}}}{\m{}{2L}}		
+	%		{\color{red} \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	%		\frac{\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}}{ \color{red} \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	%		\nn
+	%		=& \frac{\sum_{\{\m{}{p}\}_{2L}}
+		%			\delta_{\Psi_T,\m{}{1}}
+		%			\prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+		%			{\color{blue} \frac{\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}}{\mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}}
+		%		}{\sum_{\{\m{}{p}\}_{2L}}
+		%			\delta_{\Psi_T,\m{}{1}}
+		%			\prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}} 
+\end{align}
+
+\begin{align}
+	\label{eq:expectation_energy_test2}
+	\expval{\oper{E}}
+	=& \frac{ \mel**{\Psi_T}{e^{-\frac{\beta}{2} \H} \H e^{- \frac{\beta}{2} \H }}{\Psi_T}}{\mel**{\Psi_T}{e^{-\beta \H}}{\Psi_T}} \nn 
+	=& \frac{1}{\Z} \mel**{\Psi_T}{e^{-\beta \H} \H }{\Psi_T} \nn 
+	=&\frac{1}{\Z}
+	\sum_{\{\m{}{l}\}_{L}} \delta_{\Psi_T,\m{}{1}} \prod_{l=1}^{L-1}  \mel**{\m{}{l}}{ e^{ -\tau \H}}{\m{}{l+1}}  \mel{\m{}{L}}{ e^{ -\tau \H}\H}{\Psi_T} \nn
+	\approx& \frac{1}{\Z}
+	\sum_{\{\m{}{l}\}_{L}} \delta_{\Psi_T,\m{}{1}} \prod_{l=1}^{L-1}  \mel**{\m{}{l}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}}{\m{}{l+1}}  \mel{\m{}{L}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}\H}{\Psi_T}
+	\nn 
+	=& \frac{1}{\Z} 
+	\sum_{\{\m{}{p}\}_{2L-1}} \delta_{\Psi_T,\m{}{1}}
+	\prod_{p=1}^{L-1} \mel**{\m{}{2p-1}}{e^{ -\tau \H_{odd}}}{\m{}{2p}}
+	\mel**{\m{}{2p}}{e^{ -\tau \H_{even}}}{\m{}{2p+1}}
+	\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}\H}{\Psi_T}
+	\nn 
+	=& \frac{1}{\Z} 
+	\sum_{\{\m{}{p}\}_{2L-1}}
+	\delta_{\Psi_T,\m{}{1}}
+	\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} e^{ -\tau \H_{even}}\H}{\Psi_T}
+	\nn
+	=& \frac{1}{\Z} 
+	\sum_{\{\m{}{p}\}_{2L-1}}
+	\delta_{\Psi_T,\m{}{1}}
+	\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}} 
+		{\color{red} \sum_{\m{}{2L}}\ketbra{\m{}{2L}}}	
+		e^{ -\tau \H_{even}}\H}{\Psi_T}
+	\nn
+	=& \frac{1}{\Z} 
+	\sum_{\{\m{}{p}\}_{2L}}
+	\delta_{\Psi_T,\m{}{1}}
+	\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}}}{\m{}{2L}}
+	\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}
+	{\color{red}
+		\frac{\mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}{ \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	}
+	\nn
+	=& \frac{1}{\Z} 
+	\sum_{\{\m{}{p}\}_{2L}}
+	\delta_{\Psi_T,\m{}{1}}
+	\prod_{p=1}^{2L-1}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+	\mel{\m{}{2L-1}}{ e^{ -\tau \H_{odd}}}{\m{}{2L}}		
+	{\color{red} \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	\frac{\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}}{ \color{red} \mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	\nn
+	=& \frac{\sum_{\{\m{}{p}\}_{2L}}
+		\delta_{\Psi_T,\m{}{1}}
+		\prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}
+		{\color{blue} \frac{\mel{\m{}{2L}}{e^{ -\tau \H_{even}}\H}{\Psi_T}}{\mel{\m{}{2L}}{e^{-\tau \H_{even}}}{\Psi_T}}}
+	}{\sum_{\{\m{}{p}\}_{2L}}
+		\delta_{\Psi_T,\m{}{1}}
+		\prod_{p=1}^{2L}  \mel**{\m{}{p}}{\oper{\rho}(p)}{\m{}{p+1}}} 
+\end{align}
+
+\begin{align}
+	\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}\H}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	=&\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}~(\H_{odd}+\H_{even})}{\va{0}}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \nn
+	=&\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}\H_{odd}+e^{-\tau \H_{even}}\H_{even}}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \nn
+	=&\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}\H_{odd}}{\Psi_T}+\mel{\m{}{P}}{e^{-\tau \H_{even}}\H_{even}}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}}
+\end{align}
+
+\begin{align}
+	\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}\H_{even}}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	=&\frac{\mel{\m{}{P}}{e^{-\tau \H_{23}}e^{-\tau \H_{45}}e^{-\tau \H_{67}}\dots (\H_{23}+\H_{45}+\H_{67}+\dots)}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \nn
+	=& \sum_{n \text{ even}}^{N-1}
+	\frac{\mel{\m{n}{P},\m{n+1}{P}}{e^{-\tau \H_{n,n+1}}\H_{n,n+1}}{\psi_{t_n},\psi_{t_{n+1}}}
+	}{
+		\mel{\m{n}{P},\m{n+1}{P}}{e^{-\tau \H_{even}}}{\psi_{t_n},\psi_{t_{n+1}}}
+	}
+\end{align}
+
+\begin{align}
+	\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}\H_{odd}}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	=&
+	\frac{\mel{\m{}{P}}{e^{-\tau \H_{even}} 
+			{\color{red} \sum_{\m{}{\alpha}} \ketbra{\m{}{\alpha}}}		
+			\H_{odd}}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}}
+	\nn	
+	=&
+	\sum_{\m{}{\alpha}} \frac{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\m{}{\alpha}}		
+	}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \sum_{n \text{ odd}}^{N-1} \mel{\m{n}{\alpha},\m{n+1}{\alpha}}{\H_{odd_{n,n+1}}}{\psi_{t_n},\psi_{t_{n+1}}}
+	\nn	
+	=&
+	\sum_{\m{}{\alpha}}
+	\prod_{i \text{ even}}
+	\frac{\mel{\m{i}{P},\m{i+1}{P}}{e^{-\tau \H_{i,i+1}}}{\m{i}{\alpha},\m{i+1}{\alpha}}		
+	}{\mel{\m{i}{P},\m{i+1}{P}}{e^{-\tau \H_{i,i+1}}}{\psi_{t_i},\psi_{t_{i+1}}}}
+	\sum_{n \text{ odd}} \mel{\m{n}{\alpha},\m{n+1}{\alpha}}{\H_{n,n+1}}{\psi_{t_n},\psi_{t_{n+1}}}
+	\nn
+	=&
+	\sum_{\m{1}{\alpha}}\sum_{\m{2}{\alpha}}\sum_{\m{3}{\alpha}} \dots \sum_{\m{N}{\alpha}}
+	\prod_{i \text{ even}}
+	\rho^{\alpha}_{i,i+1}		
+	\sum_{n \text{ odd}} \gamma^{\alpha}_{n,n+1}
+	\nn
+	=&		
+	\sum_{n \text{ odd}} ~~   
+	\sum_{\m{1}{\alpha}}\sum_{\m{2}{\alpha}}\sum_{\m{3}{\alpha}} \dots \sum_{\m{N}{\alpha}}
+	\prod_{i \text{ even}}
+	\rho^{\alpha}_{i,i+1} \gamma^{\alpha}_{n,n+1}
+	%	=&
+	%	\sum_{n \text{ odd}}
+	%	\sum_{\m{}{\alpha}}
+	%	\prod_{i \text{ even}}
+	%	\frac{\mel{\m{i}{P},\m{i+1}{P}}{e^{-\tau \H_{i,i+1}}}{\m{i}{\alpha},\m{i+1}{\alpha}}		
+		%	}{\mel{\m{i}{P},\m{i+1}{P}}{e^{-\tau \H_{i,i+1}}}{\psi_{t_i},\psi_{t_{i+1}}}} \mel{\m{n}{\alpha},\m{n+1}{\alpha}}{\H_{n,n+1}}{\psi_{t_n},\psi_{t_{n+1}}}
+	%%%
+	%	=&\frac{\mel{\m{}{P}}{e^{-\tau \H_{23}}e^{-\tau \H_{45}}e^{-\tau \H_{67}}\dots (\H_{12}+\H_{34}+\H_{56}+\dots)}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \nn
+	%	=&\frac{\mel{\m{}{P}}{\H_{12}e^{-\tau \H_{23}}e^{-\tau \H_{45}}e^{-\tau \H_{67}}\dots + e^{-\tau \H_{23}}\H_{34}e^{-\tau \H_{45}}e^{-\tau \H_{67}}\dots + e^{-\tau \H_{23}}e^{-\tau \V{45}}\V{56}e^{-\tau \V{67}}\dots}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \H_{even}}}{\Psi_T}} \nn
+	%	=&
+	%	\frac{\mel{\m{1}{P},\m{2}{P}, \m{3}{P}}{ \V{12}e^{-\tau \V{23}}}{0,0,0}
+		%	}{
+		%		\mel{\m{2}{P}, \m{3}{P}}{e^{-\tau \V{23}}}{0,0}
+		%	}+\nn
+	%	&+
+	%	\sum_{n \text{ even}}^{N-3}
+	%	\frac{\mel{\m{n}{P},\m{n+1}{P}, \m{n+2}{P},\m{n+3}{P}}{e^{-\tau \V{n,n+1}}\,\V{n+1,n+2}\,e^{-\tau \V{n+2,n+3}}}{0,0,0,0}
+		%	}{
+		%		\mel{\m{n}{P},\m{n+1}{P}}{e^{-\tau \V{n,n+1}}}{0,0}\mel{\m{n+2}{P},\m{n+3}{P}}{e^{-\tau \V{n+2,n+3}}}{0,0}
+		%	}+\nn&+
+	%	\frac{\mel{\m{N-2}{P},\m{N-1}{P}, \m{N}{P}}{ e^{-\tau \V{N-2,N-1}}\V{N-1,N}}{0,0,0}
+		%	}{
+		%		\mel{\m{N-2}{P}, \m{N-1}{P}}{e^{-\tau \V{N-2,N-1}}}{0,0}
+		%	}
+\end{align}
+
+
+
+
+
+
+
+\newpage
+
+\newpage
+
+\subsubsection{System of $N=2$ particles}
+
+Here, the simplest case would be a system of $N=2$ planar rotors. Then, eq. \eqref{eq:partition_function_PIMC_Trotter_2} would reduce to
+\begin{align}
+	\label{eq:partition_function_PIMC_N=2_ex}
+	\Z =& \sum_{\{\m{1}{l}, \m{2}{l}\}_{L}} \prod_{l=1}^{L} e^{-\frac{\tau}{2}(\m{1}{l})^2-\frac{\tau}{2}(\m{2}{l})^2} \mel**{\m{1}{l},\m{2}{l}}{ e^{ -\tau \V{12}}}{\m{1}{l+1},\m{2}{l+1}} e^{-\frac{\tau}{2}(\m{1}{l+1})^2-\frac{\tau}{2}(\m{2}{l+1})^2} \, ,
+\end{align}
+graphically depicted as in Fig. \ref{fig:PIMC_grid_N=2}.
+\begin{figure}[ht]
+	\centering
+	\incfig{PIMC_grid_N=2}
+	\caption{Scheme showing the graphical representation of the grid defined on Eq. \eqref{eq:partition_function_PIMC_N=2_ex} for a system of $N=2$ planar rotors, where the dots represents the particles, and the hollow rectangles, the two particle operators.}
+	\label{fig:PIMC_grid_N=2}
+\end{figure}
+
+
+
+\subsection{Idk how to name this section}
+\label{sec:}
+
+From Eq. \eqref{eq:part_function_expanded}, or even Eq. \eqref{eq:partition_function_PIMC_N=2_ex} we see that all the interactions were reduced to two particle interactions and all the partition function is represented by a product of the matrix elements of two particle operators representing the interaction. Here, in order to simplify the notation we can treat pair of particles as a new object that will be indexed as $M^{p} = (\m{1}{p}+\mmax)\cdot (2\mmax+1) + (\m{2}{p}+\mmax)$
+
+\alert{... continue this part to check the Gibbs sampling process...}
+
+
+
+\newpage
+
+
+\begin{align}
+	\label{eq:expectation_energy_test}
+	\expval{\oper{E}}
+	=& \frac{ \mel**{\Psi_T}{e^{-\frac{\beta}{2} \H} \H e^{- \frac{\beta}{2} \H }}{\Psi_T}}{\mel**{\Psi_T}{e^{-\beta \H}}{\Psi_T}} \nn 
+	=& \frac{1}{\Z} \mel**{\Psi_T}{e^{-\beta \H} \H }{\Psi_T}\nn 
+	=& \frac{1}{\Z} \sum_{\{\m{}{l}\}_{L}} \delta_{\Psi_T,\m{}{1}} \prod_{l=1}^{L-1} \mel**{\m{}{l}}{e^{-\tau \H}}{\m{}{l+1}} \mel{\m{}{L}}{e^{-\tau \H}\H}{\Psi_T}\nn 
+	=& \frac{
+		\sum_{\{\m{}{p}\}_{P}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P-1}) \bra{\m{}{P-1}} e^{-\tau \V{odd}} \ketbra{\m{}{P}} e^{-\tau \V{even}}\H\ket{\Psi_T}
+	}{
+		\sum_{\{\m{}{p}\}_{P+1}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P+1})\delta_{\m{}{P+1},\Psi_T}}  \nn 
+	=& \frac{
+		\sum_{\{\m{}{p}\}_{P}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P-1}) \bra{\m{}{P-1}} e^{-\tau \V{odd}} \ketbra{\m{}{P}} e^{-\tau \V{even}}\H\ket{\Psi_T}
+		\times 
+		{\color{red}
+			\frac{
+				\sum_{\m{}{P+1}} \mel{\m{}{P}}{e^{-\tau \V{even}}}{\m{}{P+1}}\delta_{\m{}{P+1},\Psi_T}
+			}{
+				\sum_{\m{}{P+1}} \mel{\m{}{P}}{e^{-\tau \V{even}}}{\m{}{P+1}}\delta_{\m{}{P+1},\Psi_T}
+			}
+		}
+	}{
+		\sum_{\{\m{}{p}\}_{P+1}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P+1})\delta_{\m{}{P+1},\Psi_T}}\nn
+	&\hspace{1cm}
+	\nn
+	=& \frac{
+		\sum_{\{\m{}{p}\}_{P+1}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P+1})\delta_{\m{}{P+1},\Psi_T}
+		\times 
+		\frac{\mel{\m{}{P}}{e^{-\tau \V{even}}\H}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \V{even}}}{\Psi_T}}
+	}{
+		\sum_{\{\m{}{p}\}_{P+1}} \delta_{\Psi_T,\m{}{1}} \tilde{G}_{\tau}(\m{}{1}, \m{}{P+1})\delta_{\m{}{P+1},\Psi_T}
+	}
+	\, ,
+\end{align}
+Then
+\begin{align}
+	\frac{\mel{\m{}{P}}{e^{-\tau \V{even}}\H}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \V{even}}}{\Psi_T}}
+	=&\frac{\mel{\m{}{P}}{e^{-\tau \V{even}} (\K{}+ \V{})}{\Psi_T}}{\mel{\m{}{P}}{e^{-\tau \V{even}}}{\Psi_T}} \nn
+\end{align}
+
+
+
+
+
+
+
+\newpage
