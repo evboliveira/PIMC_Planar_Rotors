@@ -70,9 +70,13 @@ wait_for_key(prompt) = (print(stdout, prompt); read(stdin, 1); nothing)
     E_MC::Float64 = 0.0
     E_stdError_MC::Float64 = 0.0
 
-	Z_arr::Vector{Float64} = zeros(Float64, MC_steps)
-    Z_MC::Float64 = 0.0
-    Z_stdError_MC::Float64 = 0.0
+	K_arr::Vector{Float64} = zeros(Float64, MC_steps)
+    K_MC::Float64 = 0.0
+    K_stdError_MC::Float64 = 0.0
+
+    M_total_arr::Vector{Float64} = zeros(Float64, MC_steps)
+    M_total_MC::Float64 = 0.0
+    M_total_stdError_MC::Float64 = 0.0
 
     histo_total::Vector{Float64} = zeros(Int64, Nstates)
     histo_initial::Vector{Float64} = zeros(Int64, Nstates)
@@ -104,12 +108,14 @@ function runMC(PI::PathIntegral)#, initialState = "random", sampling = "Gibbs")
     elseif (PI.N > 2)
         PI.P = 2*PI.L + 1        
     end
+	P_mid = PI.P÷2 + 1
 
 	ops = RotorOps(m_max = PI.m_max, g = PI.g)
 	Vij = ops.Vij
     Kij = ops.Kij
-	Hij = Kij + Vij
-    expVij = (exp_matrix(-PI.tau * Hij))
+	Hij = 2*Kij + Vij
+    # expVij = (exp_matrix(-PI.tau * Vij))
+    expHij = (exp_matrix(-PI.tau * Hij))
 	# expVij = exp_matrix(-PI.tau*Vij)
     # expKij = exp_matrix(-0.5*PI.tau * Kij)
 
@@ -117,9 +123,9 @@ function runMC(PI::PathIntegral)#, initialState = "random", sampling = "Gibbs")
     # eps = 1e-10
     # rho[ rho .<= eps ] .= 0
 
-    cluster_probs = prob_table(PI.Nstates, expVij)
-    twoB_probs = twoB_prob_table(PI.Nstates, expVij)
-    two_body_sample = true
+    cluster_probs = prob_table(PI.Nstates, expHij)
+    twoB_probs = twoB_prob_table(PI.Nstates, expHij)
+    two_body_sample = false
 	#testing
 	# idx_surr = map_vector2index(PI.Nstates, [6,6,6,6])
 	# m = twoB_probs[:, idx_surr]
@@ -206,9 +212,23 @@ function runMC(PI::PathIntegral)#, initialState = "random", sampling = "Gibbs")
 		# Updating the ground state energy estimators for PIGS
 		
 		if (mc >= PI.Nequilibrate)
+
+			# Kinetic Energy Estimator
+
+			K = 0
+			M = 0
+            # println(path[P_mid,:])
+			for i=1:PI.N
+				K += (path[P_mid,i] - PI.m_max -1)^2
+                M += (path[P_mid, i] - PI.m_max - 1)^2
+			end
+            PI.K_arr[mc] = K
+            PI.M_total_arr[mc] = M
+
+
             if (PI.N == 2)			
-				E0 = mel(path[PI.P-1, 1:2], expVij * Hij, path[PI.P, 1:2])
-				Z0 = mel(path[PI.P-1, 1:2], expVij, path[PI.P, 1:2])
+				E0 = mel(path[PI.P-1, 1:2], expHij * Hij, path[PI.P, 1:2])
+				Z0 = mel(path[PI.P-1, 1:2], expHij, path[PI.P, 1:2])
 
 			elseif (PI.N == 3)
 				E0 = (mel(path[PI.P-2, 1:2], expVij * Vij, path[PI.P-1, 1:2]) / mel(path[PI.P-1, 1:2], expVij, path[PI.P, 1:2])
@@ -247,7 +267,7 @@ function runMC(PI::PathIntegral)#, initialState = "random", sampling = "Gibbs")
 				end
 			end
 
-			# ## testing with middle bead
+			## testing with middle bead
 			# if (PI.N == 2)			
 			# 	e0 = mel(path[PI.L+1-1, 1:2], expVij * Hij, path[PI.L+1, 1:2])
 			# 	z0 = mel(path[PI.L+1-1, 1:2], expVij, path[PI.L+1, 1:2])			
@@ -301,13 +321,17 @@ function runMC(PI::PathIntegral)#, initialState = "random", sampling = "Gibbs")
     # end
 	# println(counter_E/counter)
 
-    meanE, stdErrE = calculateError_byBinning(PI.E_arr[PI.Nequilibrate+1:PI.MC_steps])
-    PI.E_MC = meanE
-    PI.E_stdError_MC = stdErrE
+    # meanE, stdErrE = calculateError_byBinning(PI.E_arr[PI.Nequilibrate+1:PI.MC_steps])
+    # PI.E_MC = meanE
+    # PI.E_stdError_MC = stdErrE
 
-	# meanZ, stdErrZ = calculateError_byBinning(PI.Z_arr[PI.Nequilibrate+1:PI.MC_steps])
-    # PI.Z_MC = meanZ
-    # PI.Z_stdError_MC = stdErrZ
+	meanK, stdErrK = calculateError_byBinning(PI.K_arr[PI.Nequilibrate+1:PI.MC_steps])
+    PI.K_MC = meanK
+    PI.K_stdError_MC = stdErrK
+
+    meanM_total, stdErrM_total = calculateError_byBinning(PI.M_total_arr[PI.Nequilibrate+1:PI.MC_steps])
+    PI.M_total_MC = meanM_total
+    PI.M_total_stdError_MC = stdErrM_total
 
 	# display_path(PI.m_max, path, true)
 end
@@ -424,15 +448,25 @@ function gibbs_samp(PI::PathIntegral,
 		return MCpath[p,n]
 	else
 		update_probs = ones(Float64, Nstates)
-		for braket in clusters
-			mi,mj,mip,mjp = [ MCpath[coord[1],coord[2]] for coord in braket]
-			for m = 1:Nstates
-				mi=m
-				index_a = map_vector2index(Nstates,[mi,mj,mip,mjp])
+        for m = 1:Nstates
+			for braket_coords in clusters
+				braket = [ MCpath[coord[1],coord[2]] for coord in braket_coords]
+                braket[1] = m
+				index_a = map_vector2index(Nstates, braket)
 				mel_a = cluster_probs[index_a]
-				update_probs[m] *= mel_a
+
+                # kinetic energy condition of the end particles
+				k = 1
+				aux = 1
+                for coord in braket_coords
+					if (coord[2] == 1 || coord[2] == N)
+                        k *= exp(-0.5 * PI.tau * (braket[aux] - PI.m_max - 1)^2)
+					end
+					aux += 1
+				end
+				update_probs[m] *= mel_a * k
 			end
-		end
+        end
 		
 		### New condition to check probs
         if (sum(update_probs) == 0)

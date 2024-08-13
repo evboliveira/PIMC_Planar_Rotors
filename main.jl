@@ -14,7 +14,7 @@ using Dates
 wait_for_key(prompt) = (print(stdout, prompt); read(stdin, 1); nothing)
 
 MC_steps = 1000
-N = 3
+N = 2
 m_max = 5
 g = 1.0
 T = 0.1
@@ -38,7 +38,7 @@ open("results/main.txt", "w") do file
         runMC(PI)
         ans = string(PI.tau," ",PI.E_MC,"\n")
         write(file, ans)
-		str = @sprintf("tau=%.4f",PI.tau)*@sprintf("      E0=%.4f",PI.E_MC)
+		str = @sprintf("tau=%.4f",PI.tau)*@sprintf("      K=%.4f",PI.E_MC)
 		println(str)
 		# display(PI.E_arr[1:500:MC_steps])
 		# wait_for_key("press any key to continue")

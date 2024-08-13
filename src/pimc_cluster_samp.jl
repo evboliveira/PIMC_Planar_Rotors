@@ -63,9 +63,9 @@ export PathIntegral, runMC_cluster
     # 		and the number of beads.
     #   Finish description later
 
-    V_arr::Vector{Float64} = zeros(Float64, MC_steps)
-    V_MC::Float64 = 0.0 
-    V_stdError_MC::Float64 = 0.0
+    K_arr::Vector{Float64} = zeros(Float64, MC_steps)
+    K_MC::Float64 = 0.0 
+    K_stdError_MC::Float64 = 0.0
 
     E_arr::Vector{Float64} = zeros(Float64, MC_steps)
     E_MC::Float64 = 0.0
@@ -136,30 +136,39 @@ function runMC_cluster(PI::PathIntegral, initial_state::String = "random", sampl
             end
             # end of MC
             if (mc >= PI.Nequilibrate)
-                if (PI.N == 2)			
-                    e0 = mel(PI.MCpath[PI.P-1, 1:2], PI.expVij * PI.Vij, PI.MCpath[PI.P, 1:2])
-                    z0 = mel(PI.MCpath[PI.P-1, 1:2], PI.expVij, PI.MCpath[PI.P, 1:2])			
-                    E0 = e0 / z0
-                else
-                    E0 = 0
-                    num_total_states = PI.Nstates^PI.N
-                    for index = 1:num_total_states
-                        Malpha = map_index2vector(PI.Nstates, PI.N, index)
-                        rho = 1
-                        gamma = 0
-                        for i=1:PI.N-1
-                            if (i%2==0)
-                                rho *= (mel(PI.MCpath[PI.P-1, i:i+1], PI.expVij, Malpha[i:i+1])
-                                    /
-                                    mel(PI.MCpath[PI.P-1, i:i+1], PI.expVij, PI.MCpath[PI.P, i:i+1])
-                                )
-                            end
-                            gamma += mel(Malpha[i:i+1], PI.Vij, PI.MCpath[PI.P, i:i+1])
-                        end
-                        # defining gamma
-                        E0 += rho*gamma				
-                    end
+                # Kinetic Energy Estimator
+
+                K = 0
+                # println(path[P_mid,:])
+                for i = 1:PI.N
+                    K += (path[P_mid, i] - PI.m_max - 1)^2
                 end
+                PI.K_arr[mc] = K
+
+                # if (PI.N == 2)			
+                #     e0 = mel(PI.MCpath[PI.P-1, 1:2], PI.expVij * PI.Vij, PI.MCpath[PI.P, 1:2])
+                #     z0 = mel(PI.MCpath[PI.P-1, 1:2], PI.expVij, PI.MCpath[PI.P, 1:2])			
+                #     E0 = e0 / z0
+                # else
+                #     E0 = 0
+                #     num_total_states = PI.Nstates^PI.N
+                #     for index = 1:num_total_states
+                #         Malpha = map_index2vector(PI.Nstates, PI.N, index)
+                #         rho = 1
+                #         gamma = 0
+                #         for i=1:PI.N-1
+                #             if (i%2==0)
+                #                 rho *= (mel(PI.MCpath[PI.P-1, i:i+1], PI.expVij, Malpha[i:i+1])
+                #                     /
+                #                     mel(PI.MCpath[PI.P-1, i:i+1], PI.expVij, PI.MCpath[PI.P, i:i+1])
+                #                 )
+                #             end
+                #             gamma += mel(Malpha[i:i+1], PI.Vij, PI.MCpath[PI.P, i:i+1])
+                #         end
+                #         # defining gamma
+                #         E0 += rho*gamma				
+                #     end
+                # end
 
                 # Ergodicity counter: FIX IT LATER!!!!
                 # if (E0 > -1) && (E0 < 0)
@@ -171,6 +180,7 @@ function runMC_cluster(PI::PathIntegral, initial_state::String = "random", sampl
                 # end
 
                 PI.E_arr[mc] = E0
+                PI.K_arr[mc] = E0
             end
         end
 
@@ -179,9 +189,13 @@ function runMC_cluster(PI::PathIntegral, initial_state::String = "random", sampl
         #     PI.ergodic = true
         # end
         # println(counter_E/counter)
-        meanE, stdErrE = calculateError_byBinning(PI.E_arr[PI.Nequilibrate+1:PI.MC_steps])
-        PI.E_MC = meanE
-        PI.E_stdError_MC = stdErrE
+        # meanE, stdErrE = calculateError_byBinning(PI.E_arr[PI.Nequilibrate+1:PI.MC_steps])
+        # PI.E_MC = meanE
+        # PI.E_stdError_MC = stdErrE
+
+        meanK, stdErrK = calculateError_byBinning(PI.K_arr[PI.Nequilibrate+1:PI.MC_steps])
+        PI.K_MC = meanK
+        PI.K_stdError_MC = stdErrK
 
     # Random Sampling
     elseif (sampling == "random")
